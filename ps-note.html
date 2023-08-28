@@ -4,11 +4,11 @@
     <title>Notecard App</title>
     <style>
         .notecard {
+            position: absolute;
             width: 200px;
             height: 150px;
             background-color: #ffffff;
             border: 1px solid #ccc;
-            margin: 10px;
             cursor: move;
         }
     </style>
@@ -34,20 +34,23 @@
                 notecardContainer.appendChild(notecard);
 
                 // Add drag-and-drop listeners
-                notecard.addEventListener("dragstart", function(event) {
-                    event.dataTransfer.setData("text/plain", notecard.id);
+                let offsetX, offsetY;
+                notecard.addEventListener("mousedown", function(event) {
+                    offsetX = event.clientX - notecard.getBoundingClientRect().left;
+                    offsetY = event.clientY - notecard.getBoundingClientRect().top;
+                    document.addEventListener("mousemove", onMouseMove);
+                    document.addEventListener("mouseup", onMouseUp);
                 });
 
-                notecardContainer.addEventListener("dragover", function(event) {
-                    event.preventDefault();
-                });
+                function onMouseMove(event) {
+                    notecard.style.left = event.clientX - offsetX + "px";
+                    notecard.style.top = event.clientY - offsetY + "px";
+                }
 
-                notecardContainer.addEventListener("drop", function(event) {
-                    event.preventDefault();
-                    const notecardId = event.dataTransfer.getData("text/plain");
-                    const draggedNotecard = document.getElementById(notecardId);
-                    notecardContainer.appendChild(draggedNotecard);
-                });
+                function onMouseUp() {
+                    document.removeEventListener("mousemove", onMouseMove);
+                    document.removeEventListener("mouseup", onMouseUp);
+                }
             });
 
             // Save positions to localStorage
